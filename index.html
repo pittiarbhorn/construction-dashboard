@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Construction Project Dashboard</title>
+    <!-- Google Fonts: Kanit -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS (CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Kanit', 'sans-serif'] },
+                    colors: {
+                        darkbg: '#0F172A',
+                        primary: '#3B82F6',
+                        success: '#22C55E',
+                        warning: '#F59E0B',
+                        danger: '#EF4444'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0F172A;
+            color: #e2e8f0;
+            /* เพิ่ม Background Pattern ให้ดูมีมิติ */
+            background-image: radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.15), transparent 25%),
+                              radial-gradient(circle at 85% 30%, rgba(34, 197, 94, 0.1), transparent 25%);
+        }
+        /* Glassmorphism Effect */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1rem;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #0F172A; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        
+        .progress-circle { font-size: 1.2rem; }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto space-y-6">
+        <!-- Header -->
+        <header class="glass-panel p-6 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div>
+                <h1 class="text-2xl md:text-3xl font-semibold text-white">🚧 Construction Dashboard</h1>
+                <p class="text-gray-400 text-sm mt-1">ติดตามความคืบหน้าโครงการก่อสร้าง</p>
+            </div>
+            <div class="flex gap-2">
+                <input type="text" id="searchInput" placeholder="ค้นหาโครงการ..." class="bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary w-full md:w-64">
+            </div>
+        </header>
+
+        <!-- KPI Dashboard -->
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div class="glass-panel p-4 text-center">
+                <p class="text-gray-400 text-sm">โครงการทั้งหมด</p>
+                <p class="text-3xl font-semibold text-white mt-2" id="kpi-total">0</p>
+            </div>
+            <div class="glass-panel p-4 text-center border-b-4 border-primary">
+                <p class="text-gray-400 text-sm">กำลังดำเนินการ</p>
+                <p class="text-3xl font-semibold text-primary mt-2" id="kpi-progress">0</p>
+            </div>
+            <div class="glass-panel p-4 text-center border-b-4 border-success">
+                <p class="text-gray-400 text-sm">เสร็จแล้ว</p>
+                <p class="text-3xl font-semibold text-success mt-2" id="kpi-done">0</p>
+            </div>
+            <div class="glass-panel p-4 text-center border-b-4 border-danger">
+                <p class="text-gray-400 text-sm">ล่าช้า/รอเริ่ม</p>
+                <p class="text-3xl font-semibold text-danger mt-2" id="kpi-delay">0</p>
+            </div>
+            <div class="glass-panel p-4 text-center border-b-4 border-warning col-span-2 md:col-span-1">
+                <p class="text-gray-400 text-sm">% ความคืบหน้ารวม</p>
+                <p class="text-3xl font-semibold text-warning mt-2" id="kpi-percent">0%</p>
+            </div>
+        </div>
+
+        <!-- Charts & Timeline -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Pie Chart -->
+            <div class="glass-panel p-6">
+                <h2 class="text-lg font-medium mb-4">สถานะโครงการ</h2>
+                <div class="relative h-48 w-full flex justify-center">
+                    <canvas id="statusChart"></canvas>
+                </div>
+            </div>
+            <!-- Timeline (Simplified Gantt) -->
+            <div class="glass-panel p-6 md:col-span-2 overflow-x-auto">
+                <h2 class="text-lg font-medium mb-4">Timeline ล่าสุด</h2>
+                <div class="space-y-4 min-w-[500px]" id="timeline-container">
+                    <!-- จะถูกเติมด้วย Javascript -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="glass-panel p-6 overflow-x-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-medium">ตารางโครงการ</h2>
+                <select id="filterTeam" class="bg-slate-800/50 border border-slate-600 rounded-lg px-3 py-1.5 text-sm focus:outline-none">
+                    <option value="">ทีมงานทั้งหมด</option>
+                    <option value="ทีมรับเหมา">ทีมรับเหมา</option>
+                    <option value="ทีมรายวัน">ทีมรายวัน</option>
+                </select>
+            </div>
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="text-gray-400 text-sm border-b border-slate-700">
+                        <th class="pb-3 font-medium">รหัส</th>
+                        <th class="pb-3 font-medium">ชื่อโครงการ</th>
+                        <th class="pb-3 font-medium">ทีมงาน</th>
+                        <th class="pb-3 font-medium w-48">ความคืบหน้า</th>
+                        <th class="pb-3 font-medium text-center">สถานะ</th>
+                        <th class="pb-3 font-medium text-center">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body" class="text-sm">
+                    <tr><td colspan="6" class="text-center py-8 text-gray-500">กำลังโหลดข้อมูล...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal Popup รายละเอียด -->
+    <div id="detailModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex justify-center items-center p-4 z-50">
+        <div class="glass-panel w-full max-w-2xl p-6 relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">✕</button>
+            <h2 id="modal-title" class="text-xl font-medium text-primary mb-4">ชื่อโครงการ</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                    <div class="bg-slate-800/50 rounded-lg aspect-video flex items-center justify-center border border-slate-600 mb-4">
+                        <span class="text-gray-500">📷 รูปไซต์งาน (Mockup)</span>
+                    </div>
+                    <p><span class="text-gray-400">ผู้รับผิดชอบ:</span> <span id="modal-team"></span></p>
+                    <p class="mt-2"><span class="text-gray-400">ตรวจรับงาน:</span> <span id="modal-date"></span></p>
+                </div>
+                <div class="space-y-3">
+                    <h3 class="font-medium text-white border-b border-slate-700 pb-2">รายละเอียดงานก่อสร้าง</h3>
+                    <div class="grid grid-cols-2 gap-2 text-gray-300" id="modal-tasks">
+                        <!-- รายละเอียดความคืบหน้าแต่ละส่วนจะแสดงตรงนี้ -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- 🔴 นำ URL ของ Web App จาก Google Apps Script มาใส่ที่นี่ ---
+        const API_URL = 'https://script.google.com/macros/s/AKfycbw08EpdREtuCofDUK0g670OVp8hs_Z5Caxszt88bFA4eq1mZPTsC9Lcu4MtykzNcd5TKg/exec';
+        
+        let projectData = [];
+        let statusChartInstance = null;
+
+        // สัญลักษณ์วงกลมตาม % งาน
+        function getIconByPercent(percent) {
+            if (percent === 0) return '<span class="progress-circle text-gray-500">○</span>';
+            if (percent <= 25) return '<span class="progress-circle text-danger">◔</span>';
+            if (percent <= 50) return '<span class="progress-circle text-warning">◑</span>';
+            if (percent <= 75) return '<span class="progress-circle text-primary">◕</span>';
+            return '<span class="progress-circle text-success">⬤</span>';
+        }
+
+        function getColorClass(percent) {
+            if (percent < 40) return 'bg-danger';
+            if (percent < 80) return 'bg-warning';
+            return 'bg-success';
+        }
+
+        async function fetchData() {
+            try {
+                // หากยังไม่ได้ใส่ API URL ระบบจะใช้ข้อมูล Mockup อ้างอิงจากภาพ image_668a69.png เพื่อให้เห็นตัวอย่างดีไซน์
+                if(API_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
+                    projectData = [
+                        {"เลขที่โครงการ": "08/69", "ชื่อโครงการ": "บ้านหนองอิตื้อ หมู่ 15", "ทีมงาน": "ทีมรับเหมา", "เปอร์เซ็นต์งาน": 100.0, "ตรวจรับงาน": "27/7/69"},
+                        {"เลขที่โครงการ": "13/69", "ชื่อโครงการ": "บ้านหนองหว้า หมู่ 9", "ทีมงาน": "ทีมรับเหมา", "เปอร์เซ็นต์งาน": 0.0, "ตรวจรับงาน": "-"},
+                        {"เลขที่โครงการ": "14/69", "ชื่อโครงการ": "หมู่6 บ้านห้วยสีทน (สาย7 ซอย4)", "ทีมงาน": "ทีมรับเหมา", "เปอร์เซ็นต์งาน": 62.5, "ตรวจรับงาน": "-"},
+                        {"เลขที่โครงการ": "21/69", "ชื่อโครงการ": "หมู่9 บ้านหามแห (ถนนซอยหนองโปร่ง)", "ทีมงาน": "ทีมรายวัน", "เปอร์เซ็นต์งาน": 43.8, "ตรวจรับงาน": "-"}
+                    ];
+                } else {
+                    const response = await fetch(API_URL);
+                    projectData = await response.json();
+                }
+                renderDashboard();
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                document.getElementById('table-body').innerHTML = `<tr><td colspan="6" class="text-center py-8 text-danger">เกิดข้อผิดพลาดในการดึงข้อมูล</td></tr>`;
+            }
+        }
+
+        function renderDashboard() {
+            let total = projectData.length;
+            let done = 0, inProgress = 0, waiting = 0;
+            let totalPercent = 0;
+
+            const tbody = document.getElementById('table-body');
+            const timelineContainer = document.getElementById('timeline-container');
+            tbody.innerHTML = '';
+            timelineContainer.innerHTML = '';
+
+            projectData.forEach((row, index) => {
+                let percent = parseFloat(row["เปอร์เซ็นต์งาน"]) || 0;
+                totalPercent += percent;
+
+                // จัดกลุ่มสถานะ
+                if (percent === 100) done++;
+                else if (percent === 0) waiting++;
+                else inProgress++;
+
+                // 1. Render Table
+                const tr = document.createElement('tr');
+                tr.className = "border-b border-slate-700/50 hover:bg-slate-800/30 transition-colors";
+                tr.innerHTML = `
+                    <td class="py-3">${row["เลขที่โครงการ"] || '-'}</td>
+                    <td class="py-3 font-medium text-white">${row["ชื่อโครงการ"] || '-'}</td>
+                    <td class="py-3"><span class="bg-slate-700 px-2 py-1 rounded text-xs">${row["ทีมงาน"] || '-'}</span></td>
+                    <td class="py-3">
+                        <div class="flex items-center gap-2">
+                            <div class="w-full bg-slate-700 rounded-full h-2.5">
+                                <div class="${getColorClass(percent)} h-2.5 rounded-full" style="width: ${percent}%"></div>
+                            </div>
+                            <span class="text-xs text-gray-400 w-8 text-right">${percent}%</span>
+                        </div>
+                    </td>
+                    <td class="py-3 text-center">${getIconByPercent(percent)}</td>
+                    <td class="py-3 text-center">
+                        <button onclick="openModal(${index})" class="text-primary hover:text-white text-xs bg-primary/20 px-3 py-1.5 rounded-lg transition-colors">รายละเอียด</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+
+                // 2. Render Timeline (Mockup เฉพาะรายการที่กำลังทำ)
+                if (percent > 0 && percent < 100 && index < 5) {
+                    timelineContainer.innerHTML += `
+                        <div>
+                            <div class="flex justify-between text-xs text-gray-400 mb-1">
+                                <span>${row["ชื่อโครงการ"]}</span>
+                                <span>${percent}%</span>
+                            </div>
+                            <div class="w-full bg-slate-700 rounded h-1.5 flex">
+                                <div class="bg-primary h-1.5 rounded-l" style="width: ${percent}%"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+
+            // 3. Update KPIs
+            document.getElementById('kpi-total').innerText = total;
+            document.getElementById('kpi-done').innerText = done;
+            document.getElementById('kpi-progress').innerText = inProgress;
+            document.getElementById('kpi-delay').innerText = waiting; // ใช้รอเริ่มแทน
+            let avgPercent = total > 0 ? (totalPercent / total).toFixed(1) : 0;
+            document.getElementById('kpi-percent').innerText = `${avgPercent}%`;
+
+            // 4. Update Pie Chart
+            updateChart(inProgress, done, waiting);
+        }
+
+        function updateChart(inProgress, done, waiting) {
+            const ctx = document.getElementById('statusChart').getContext('2d');
+            if (statusChartInstance) statusChartInstance.destroy();
+            
+            statusChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['ดำเนินการ', 'เสร็จแล้ว', 'รอเริ่ม/ล่าช้า'],
+                    datasets: [{
+                        data: [inProgress, done, waiting],
+                        backgroundColor: ['#3B82F6', '#22C55E', '#EF4444'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { color: '#cbd5e1', font: { family: 'Kanit' } } }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        // ระบบ Modal Popup
+        function openModal(index) {
+            const data = projectData[index];
+            document.getElementById('modal-title').innerText = `${data["เลขที่โครงการ"]} - ${data["ชื่อโครงการ"]}`;
+            document.getElementById('modal-team').innerText = data["ทีมงาน"] || '-';
+            document.getElementById('modal-date').innerText = data["ตรวจรับงาน"] || 'ยังไม่กำหนด';
+            
+            // แสดงรายละเอียดงานย่อย (ดึงจาก Key ใน JSON ที่เป็นเปอร์เซ็นต์)
+            let tasksHtml = '';
+            for (const [key, value] of Object.entries(data)) {
+                if(key !== "เลขที่โครงการ" && key !== "ชื่อโครงการ" && key !== "ทีมงาน" && key !== "ตรวจรับงาน" && key !== "เปอร์เซ็นต์งาน") {
+                    let valNum = parseFloat(value) || 0;
+                    tasksHtml += `
+                        <div class="flex justify-between items-center text-xs">
+                            <span class="truncate pr-2">${key}</span>
+                            <span class="${valNum === 100 ? 'text-success' : (valNum > 0 ? 'text-primary' : 'text-gray-500')}">${valNum}%</span>
+                        </div>
+                    `;
+                }
+            }
+            document.getElementById('modal-tasks').innerHTML = tasksHtml || '<div class="col-span-2 text-gray-500 text-center">ไม่มีข้อมูลงานย่อย</div>';
+            
+            document.getElementById('detailModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('detailModal').classList.add('hidden');
+        }
+
+        // ระบบ Search
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const text = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('#table-body tr');
+            rows.forEach(row => {
+                const name = row.cells[1].innerText.toLowerCase();
+                row.style.display = name.includes(text) ? '' : 'none';
+            });
+        });
+
+        // ระบบ Filter
+        document.getElementById('filterTeam').addEventListener('change', function(e) {
+            const filter = e.target.value;
+            const rows = document.querySelectorAll('#table-body tr');
+            rows.forEach(row => {
+                const team = row.cells[2].innerText;
+                row.style.display = (filter === "" || team === filter) ? '' : 'none';
+            });
+        });
+
+        // โหลดข้อมูลเมื่อเปิดหน้าเว็บ
+        window.onload = fetchData;
+    </script>
+</body>
+</html>
