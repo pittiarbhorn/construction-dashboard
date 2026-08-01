@@ -123,7 +123,7 @@
 
     <!-- Modal 1: Popup รายละเอียดหลัก -->
     <div id="detailModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex justify-center items-center p-4 z-40 overflow-y-auto">
-        <div class="glass-panel w-full max-w-4xl p-6 relative my-auto">
+        <div class="glass-panel w-full max-w-5xl p-6 relative my-auto">
             <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">✕</button>
             <h2 id="modal-title" class="text-xl md:text-2xl font-medium text-primary mb-6">ชื่อโครงการ</h2>
             
@@ -147,6 +147,15 @@
 
                 <!-- สเต็ปงาน (ฝั่งขวา) -->
                 <div class="md:col-span-4">
+                    
+                    <!-- 🟢 เพิ่มส่วน: ข้อมูลสัญญาและงบประมาณ 🟢 -->
+                    <div class="bg-slate-800/30 p-4 rounded-lg border border-slate-700 mb-6">
+                        <h3 class="text-white font-medium mb-3 border-b border-slate-600 pb-2">ข้อมูลสัญญาและงบประมาณ</h3>
+                        <div id="modal-financials" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                            <!-- ข้อมูลหน่วยงาน การเงิน จะถูกเติมตรงนี้ -->
+                        </div>
+                    </div>
+
                     <h3 class="font-medium text-white border-b border-slate-700 pb-2 mb-3">สถานะงานแต่ละสเต็ป <span class="text-xs text-gray-400 font-normal">(คลิกเพื่อดูรายละเอียด)</span></h3>
                     <div id="modal-tasks" class="grid grid-cols-2 gap-3 mt-4"></div>
                 </div>
@@ -179,11 +188,11 @@
     </div>
 
     <script>
-        // --- 🔴 ใส่ URL ของ Web App ตรงนี้ (อย่าลืม Deploy เป็น New Version) ---
+        // --- 🔴 ใส่ URL ของ Web App ตรงนี้ ---
         const API_URL = 'https://script.google.com/macros/s/AKfycbw08EpdREtuCofDUK0g670OVp8hs_Z5Caxszt88bFA4eq1mZPTsC9Lcu4MtykzNcd5TKg/exec';
         
-        let projectData = []; // เก็บข้อมูลชีต "ติดตามงาน"
-        let detailsData = []; // เก็บข้อมูลชีต "รายละเอียดงาน"
+        let projectData = []; 
+        let detailsData = []; 
         let statusChartInstance = null;
 
         function getIconByPercent(percent) {
@@ -207,7 +216,17 @@
             return num.toFixed(2);
         }
 
-        // ฟังก์ชันช่วยหาค่าแบบยืดหยุ่น (แก้ปัญหาคิวคอนกรีตไม่แสดง)
+        // ฟังก์ชันใหม่: เพิ่มลูกน้ำ (Comma) สำหรับจำนวนเงิน
+        function formatCurrency(value) {
+            if (value === undefined || value === null || value === "" || value === "-") return "-";
+            // ลบ comma เดิมออกก่อน (ถ้ามี) ป้องกันบั๊กการแปลงค่า
+            let strVal = value.toString().replace(/,/g, '');
+            let num = parseFloat(strVal);
+            if (isNaN(num)) return value;
+            return num.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // ฟังก์ชันช่วยหาค่าแบบยืดหยุ่น
         function findValueByKeyPart(obj, keyword) {
             for (let key in obj) {
                 if (key.toLowerCase().replace(/\s/g, '').includes(keyword.toLowerCase())) {
@@ -222,10 +241,8 @@
                 const response = await fetch(API_URL);
                 const result = await response.json();
                 
-                // โครงสร้างใหม่จะส่งกลับมาเป็น { projects: [...], details: [...] }
                 projectData = result.projects || [];
                 detailsData = result.details || [];
-                
                 renderDashboard();
             } catch (error) {
                 console.error('Error fetching data:', error);
@@ -314,7 +331,7 @@
             document.getElementById('modal-team').innerText = data["ทีมงาน"] || '-';
             document.getElementById('modal-date').innerText = data["ตรวจรับงาน"] || 'ยังไม่กำหนด';
             
-            // ใช้ฟังก์ชันดึงค่าแบบยืดหยุ่น แก้ปัญหาชื่อคอลัมน์ไม่ตรง
+            // ข้อมูลสเปกซ้ายมือ
             const boq = findValueByKeyPart(data, "boq");
             const actual = findValueByKeyPart(data, "ใช้จริง");
             const errQ = findValueByKeyPart(data, "error(คิว)") !== "-" ? findValueByKeyPart(data, "error(คิว)") : findValueByKeyPart(data, "error"); 
@@ -332,7 +349,39 @@
                 <div class="flex justify-between items-center text-gray-400"><span>Error (%):</span> <span class="text-white">${formatNumber(errP)}</span></div>
             `;
 
-            const excludeWords = ["เลขที่", "ชื่อ", "ทีมงาน", "ตรวจรับงาน", "เปอร์เซ็นต์", "ราคา", "สัญญา", "หน่วยงาน", "สถานะ", "หมายเหตุ", "ผู้รับผิดชอบ", "กว้าง", "ยาว", "ลึก", "ไหล่ทาง", "คิว", "error"];
+            // --- 🟢 ข้อมูลใหม่: สัญญาและงบประมาณ (ฝั่งขวาบน) 🟢 ---
+            const vAgency = data["หน่วยงาน"] || "-";
+            const vStart = data["วันที่เริ่มสัญญา"] || "-";
+            const vEnd = data["วันสิ้นสุดสัญญา"] || "-";
+            const vPrice = data["ราคาโครงการ"] || "-";
+            const vBudget = data["งบค่าแรงต่อโครงการ"] || "-";
+            // รองรับกรณีชีตพิมพ์ว่า "ปัจุบัน" หรือ "ปัจจุบัน" รวมถึง "เเรง" กับ "แรง"
+            const vCurrent = data["งบค่าแรงปัจจุบัน"] || data["งบค่าแรงปัจุบัน"] || "-";
+            const vDiff = data["ผลต่างค่าแรง"] || data["ผลต่างค่าเเรง"] || "-";
+
+            // คำนวณสีสำหรับผลต่าง (ถ้าติดลบให้เป็นสีแดง)
+            let diffNum = parseFloat((vDiff.toString()).replace(/,/g, ''));
+            let diffColor = isNaN(diffNum) ? 'text-white' : (diffNum < 0 ? 'text-danger' : 'text-success');
+
+            document.getElementById('modal-financials').innerHTML = `
+                <div class="flex justify-between items-center text-gray-400 md:col-span-2"><span>หน่วยงาน:</span> <span class="text-white">${vAgency}</span></div>
+                <div class="flex justify-between items-center text-gray-400"><span>วันที่เริ่มสัญญา:</span> <span class="text-white">${vStart}</span></div>
+                <div class="flex justify-between items-center text-gray-400"><span>วันสิ้นสุดสัญญา:</span> <span class="text-white">${vEnd}</span></div>
+                
+                <div class="md:col-span-2 border-t border-slate-700/50 my-1"></div>
+                
+                <div class="flex justify-between items-center text-gray-400 md:col-span-2"><span>ราคาโครงการ:</span> <span class="text-primary font-medium text-base">${formatCurrency(vPrice)} ฿</span></div>
+                <div class="flex justify-between items-center text-gray-400"><span>งบค่าแรงต่อโครงการ:</span> <span class="text-white">${formatCurrency(vBudget)}</span></div>
+                <div class="flex justify-between items-center text-gray-400"><span>งบค่าแรงปัจจุบัน:</span> <span class="text-warning">${formatCurrency(vCurrent)}</span></div>
+                <div class="flex justify-between items-center text-gray-400 md:col-span-2"><span>ผลต่างค่าแรง:</span> <span class="${diffColor} font-medium text-base">${formatCurrency(vDiff)}</span></div>
+            `;
+
+            // เพิ่มคำกรอง เพื่อไม่ให้ค่าพวกนี้กลายเป็นวงกลม
+            const excludeWords = [
+                "เลขที่", "ชื่อ", "ทีมงาน", "ตรวจรับงาน", "เปอร์เซ็นต์", "ราคา", "สัญญา", "หน่วยงาน", 
+                "สถานะ", "หมายเหตุ", "ผู้รับผิดชอบ", "กว้าง", "ยาว", "ลึก", "ไหล่ทาง", "คิว", "error",
+                "งบ", "ผลต่าง", "ค่าแรง"
+            ];
             
             let tasksHtml = '';
             for (const [key, value] of Object.entries(data)) {
@@ -345,7 +394,6 @@
                     if (valNum > 0 && valNum < 100) { ringColor = '#3B82F6'; textColor = 'text-white'; } 
                     else if (valNum === 100) { ringColor = '#22C55E'; textColor = 'text-success'; }
 
-                    // เพิ่ม onclick เพื่อเปิด Sub-Modal เมื่อคลิกที่สเต็ป
                     tasksHtml += `
                         <div onclick="openStepDetail('${projectId}', '${key}')" class="flex items-center gap-3 bg-slate-800/40 p-2.5 rounded-xl border border-slate-700/50 hover:bg-slate-700/80 transition-colors cursor-pointer group">
                             <div class="relative w-11 h-11 rounded-full flex items-center justify-center shrink-0 shadow-inner group-hover:scale-105 transition-transform"
@@ -365,7 +413,6 @@
             document.getElementById('detailModal').classList.remove('hidden');
         }
 
-        // --- ระบบกรองและแสดงรายละเอียดงานใน Sub-Modal ---
         function openStepDetail(projectId, stepName) {
             document.getElementById('step-modal-title').innerText = stepName;
             document.getElementById('step-modal-subtitle').innerText = `โครงการเลขที่: ${projectId}`;
@@ -373,8 +420,6 @@
             const tbody = document.getElementById('step-detail-body');
             tbody.innerHTML = '';
 
-            // ค้นหาข้อมูลจากชีต "รายละเอียดงาน" ที่เลขที่โครงการ และ สถานะงาน ตรงกัน
-            // (ใช้การตัดช่องว่างออก เพื่อป้องกันปัญหาการพิมพ์เว้นวรรคผิดใน Google Sheets)
             const matchedDetails = detailsData.filter(d => 
                 (d["เลขที่โครงการ"] || '').toString().trim() === projectId.toString().trim() &&
                 (d["สถานะงาน"] || '').replace(/\s/g, '') === stepName.replace(/\s/g, '')
