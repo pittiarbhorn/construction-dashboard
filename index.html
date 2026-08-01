@@ -133,24 +133,34 @@
 
     <!-- Modal Popup รายละเอียด -->
     <div id="detailModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden flex justify-center items-center p-4 z-50 overflow-y-auto">
-        <div class="glass-panel w-full max-w-3xl p-6 relative my-auto">
+        <div class="glass-panel w-full max-w-4xl p-6 relative my-auto">
             <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">✕</button>
             <h2 id="modal-title" class="text-xl md:text-2xl font-medium text-primary mb-6">ชื่อโครงการ</h2>
-            <div class="grid grid-cols-1 md:grid-cols-5 gap-6 text-sm">
+            
+            <div class="grid grid-cols-1 md:grid-cols-7 gap-6 text-sm">
                 
-                <!-- ข้อมูลทั่วไป -->
-                <div class="md:col-span-2 space-y-4">
+                <!-- ข้อมูลทั่วไป & สเปก (ฝั่งซ้าย) -->
+                <div class="md:col-span-3 space-y-4">
                     <div class="bg-slate-800/50 rounded-lg aspect-video flex items-center justify-center border border-slate-600">
                         <span class="text-gray-500">📷 รูปไซต์งาน (Mockup)</span>
                     </div>
+                    
                     <div class="bg-slate-800/30 p-4 rounded-lg border border-slate-700 space-y-2">
                         <p><span class="text-gray-400 inline-block w-24">ผู้รับผิดชอบ:</span> <span id="modal-team" class="text-white"></span></p>
                         <p><span class="text-gray-400 inline-block w-24">ตรวจรับงาน:</span> <span id="modal-date" class="text-white"></span></p>
                     </div>
+
+                    <!-- กล่องข้อมูลสเปก/คอนกรีต -->
+                    <div class="bg-slate-800/30 p-4 rounded-lg border border-slate-700">
+                        <h3 class="text-white font-medium mb-3 border-b border-slate-600 pb-2">ข้อมูลสเปกและคอนกรีต</h3>
+                        <div id="modal-specs" class="space-y-2">
+                            <!-- จะถูกเติมด้วย Javascript -->
+                        </div>
+                    </div>
                 </div>
 
-                <!-- สเต็ปงาน (วงกลมเปอร์เซ็นต์) -->
-                <div class="md:col-span-3">
+                <!-- สเต็ปงาน (ฝั่งขวา) -->
+                <div class="md:col-span-4">
                     <h3 class="font-medium text-white border-b border-slate-700 pb-2 mb-3">สถานะงานแต่ละสเต็ป</h3>
                     <div id="modal-tasks">
                         <!-- วงกลมสเต็ปงานจะแสดงตรงนี้ -->
@@ -185,10 +195,9 @@
         async function fetchData() {
             try {
                 if(API_URL === 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL') {
+                    // Mockup ข้อมูลจำลอง กรณีที่ยังไม่ได้ใส่ URL จริง
                     projectData = [
-                        {"เลขที่โครงการ": "08/69", "ชื่อโครงการ": "บ้านหนองอิตื้อ หมู่ 15", "ทีมงาน": "ทีมรับเหมา", "เปอร์เซ็นต์งาน": 100.0, "ตรวจรับงาน": "27/7/69", "เคลียร์ริ่งพื้นที่": 100, "ลงทราย-ปรับทราย": 100, "เข้าแบบ": 100, "เทคอนกรีต": 100},
-                        {"เลขที่โครงการ": "14/69", "ชื่อโครงการ": "หมู่6 บ้านห้วยสีทน", "ทีมงาน": "ทีมรับเหมา", "เปอร์เซ็นต์งาน": 62.5, "ตรวจรับงาน": "-", "เคลียร์ริ่งพื้นที่": 100, "ลงทราย-ปรับทราย": 100, "เข้าแบบ": 50, "เทคอนกรีต": 0},
-                        {"เลขที่โครงการ": "21/69", "ชื่อโครงการ": "หมู่9 บ้านหามแห", "ทีมงาน": "ทีมรายวัน", "เปอร์เซ็นต์งาน": 43.8, "ตรวจรับงาน": "-", "เคลียร์ริ่งพื้นที่": 100, "ลงทราย-ปรับทราย": 50, "เข้าแบบ": 25, "เทคอนกรีต": 0}
+                        {"เลขที่โครงการ": "08/69", "ชื่อโครงการ": "บ้านหนองอิตื้อ หมู่ 15", "ทีมงาน": "ทีมรับเหมา", "เปอร์เซ็นต์งาน": 100.0, "ตรวจรับงาน": "27/7/69", "เคลียร์ริ่งพื้นที่": 100, "ลงทราย-ปรับทราย": 100, "กว้าง(m.)": 4, "ยาว(m.)": 150, "ลึก(m.)": 0.15, "ไหล่ทาง(m.)": 0.5, "คิวคอนกรีต(BOQ)": 90, "คิวคอนกรีต(ใช้จริง)": 92.5, "error(คิว)": -2.5, "error(%)": -2.78},
                     ];
                 } else {
                     const response = await fetch(API_URL);
@@ -237,7 +246,7 @@
                     </td>
                     <td class="py-3 text-center">${getIconByPercent(percent)}</td>
                     <td class="py-3 text-center">
-                        <button class="text-primary hover:text-white text-xs bg-primary/20 px-3 py-1.5 rounded-lg transition-colors">ดูสเต็ปงาน</button>
+                        <button class="text-primary hover:text-white text-xs bg-primary/20 px-3 py-1.5 rounded-lg transition-colors">ดูรายละเอียด</button>
                     </td>
                 `;
                 tbody.appendChild(tr);
@@ -292,16 +301,42 @@
             });
         }
 
-        // --- ระบบอัปเดต Popup ให้แสดงกราฟวงกลมและกรองข้อมูลที่ไม่ใช่สเต็ปงานออก ---
+        // --- ฟังก์ชันจัดรูปแบบตัวเลขทศนิยม 2 ตำแหน่ง ---
+        function formatNumber(value) {
+            if (value === undefined || value === null || value === "") return "-";
+            let num = parseFloat(value);
+            if (isNaN(num)) return value;
+            return num.toFixed(2);
+        }
+
         function openModal(index) {
             const data = projectData[index];
             document.getElementById('modal-title').innerText = `${data["เลขที่โครงการ"] || '-'} - ${data["ชื่อโครงการ"] || '-'}`;
             document.getElementById('modal-team').innerText = data["ทีมงาน"] || '-';
             document.getElementById('modal-date').innerText = data["ตรวจรับงาน"] || 'ยังไม่กำหนด';
             
-            // 🛑 คำที่ต้องการกรองออก (คอลัมน์ที่มีคำเหล่านี้จะไม่ถูกนำมาสร้างเป็นวงกลมเปอร์เซ็นต์)
-            const excludeWords = ["เลขที่", "ชื่อ", "ทีมงาน", "ตรวจรับงาน", "เปอร์เซ็นต์", "ราคา", "สัญญา", "หน่วยงาน", "สถานะ", "หมายเหตุ", "ผู้รับผิดชอบ"];
+            // 🛑 เพิ่มคำว่า กว้าง, ยาว, ลึก, ไหล่ทาง, คิว, error เข้าไปในนี้ เพื่อไม่ให้มันไปโผล่เป็นวงกลมสเต็ปงาน
+            const excludeWords = [
+                "เลขที่", "ชื่อ", "ทีมงาน", "ตรวจรับงาน", "เปอร์เซ็นต์", "ราคา", "สัญญา", "หน่วยงาน", 
+                "สถานะ", "หมายเหตุ", "ผู้รับผิดชอบ",
+                "กว้าง", "ยาว", "ลึก", "ไหล่ทาง", "คิว", "error" 
+            ];
             
+            // --- จัดการข้อมูลสเปก / คอนกรีต ให้อยู่ฝั่งซ้าย ---
+            const specsContainer = document.getElementById('modal-specs');
+            specsContainer.innerHTML = `
+                <div class="flex justify-between items-center text-gray-400"><span>กว้าง (m.):</span> <span class="text-white">${formatNumber(data["กว้าง(m.)"])}</span></div>
+                <div class="flex justify-between items-center text-gray-400"><span>ยาว (m.):</span> <span class="text-white">${formatNumber(data["ยาว(m.)"])}</span></div>
+                <div class="flex justify-between items-center text-gray-400"><span>ลึก (m.):</span> <span class="text-white">${formatNumber(data["ลึก(m.)"])}</span></div>
+                <div class="flex justify-between items-center text-gray-400"><span>ไหล่ทาง (m.):</span> <span class="text-white">${formatNumber(data["ไหล่ทาง(m.)"])}</span></div>
+                <div class="border-t border-slate-700/50 my-2 pt-2"></div>
+                <div class="flex justify-between items-center text-gray-400"><span>คิวคอนกรีต (BOQ):</span> <span class="text-primary font-medium">${formatNumber(data["คิวคอนกรีต(BOQ)"])}</span></div>
+                <div class="flex justify-between items-center text-gray-400"><span>คิวคอนกรีต (ใช้จริง):</span> <span class="text-warning font-medium">${formatNumber(data["คิวคอนกรีต(ใช้จริง)"])}</span></div>
+                <div class="flex justify-between items-center text-gray-400"><span>Error (คิว):</span> <span class="text-white">${formatNumber(data["error(คิว)"])}</span></div>
+                <div class="flex justify-between items-center text-gray-400"><span>Error (%):</span> <span class="text-white">${formatNumber(data["error(%)"])}</span></div>
+            `;
+
+            // --- จัดการข้อมูลสเต็ปงาน (วงกลมเปอร์เซ็นต์) ---
             let tasksHtml = '';
             for (const [key, value] of Object.entries(data)) {
                 // เช็คว่าชื่อคอลัมน์ (key) ต้องไม่มีคำที่อยู่ใน excludeWords
@@ -310,19 +345,17 @@
                 if (isTask && key.trim() !== "") {
                     let valNum = parseFloat(value) || 0;
                     
-                    // ป้องกันกรณีตัวเลขผิดพลาดเกิน 100
                     if (valNum > 100) valNum = 100;
                     if (valNum < 0) valNum = 0;
 
-                    // กำหนดสีของวงกลมตามความคืบหน้า
-                    let ringColor = '#475569'; // สีเทา (0%)
+                    let ringColor = '#475569'; 
                     let textColor = 'text-gray-400';
                     
                     if (valNum > 0 && valNum < 100) {
-                        ringColor = '#3B82F6'; // สีฟ้า (กำลังดำเนินการ)
+                        ringColor = '#3B82F6'; 
                         textColor = 'text-white';
                     } else if (valNum === 100) {
-                        ringColor = '#22C55E'; // สีเขียว (เสร็จสิ้น)
+                        ringColor = '#22C55E'; 
                         textColor = 'text-success';
                     }
 
@@ -342,9 +375,8 @@
                 }
             }
             
-            // ปรับ Layout ของ Modal Tasks ให้รองรับวงกลมอย่างสวยงาม
             const tasksContainer = document.getElementById('modal-tasks');
-            tasksContainer.className = "grid grid-cols-2 lg:grid-cols-3 gap-3 mt-4";
+            tasksContainer.className = "grid grid-cols-2 gap-3 mt-4";
             tasksContainer.innerHTML = tasksHtml || '<div class="col-span-full text-gray-500 text-center py-4">ไม่มีข้อมูลสเต็ปงาน</div>';
             
             document.getElementById('detailModal').classList.remove('hidden');
