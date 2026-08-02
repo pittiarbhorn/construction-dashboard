@@ -506,9 +506,7 @@
         function closeModal() { document.getElementById('detailModal').classList.add('hidden'); }
 
         fetchData();
-    </script>
-</body>
-    // --- ระบบจัดรูปแบบตัวเลขในฟอร์ม (ใส่ลูกน้ำและทศนิยม 2 ตำแหน่งอัตโนมัติ) ---
+        // --- ระบบจัดรูปแบบตัวเลขในฟอร์ม (ใส่ลูกน้ำและทศนิยม 2 ตำแหน่งอัตโนมัติ) ---
         document.querySelectorAll('.number-format').forEach(input => {
             // เมื่อพิมพ์เสร็จแล้วคลิกเมาส์ออก (Blur) ให้แปลงเป็นรูปแบบ 1,000.00
             input.addEventListener('blur', function(e) {
@@ -528,4 +526,5 @@
                 e.target.value = value;
             });
         });
-</html>
+    </script>
+</body>
