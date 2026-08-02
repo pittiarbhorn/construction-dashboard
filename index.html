@@ -245,9 +245,16 @@
 
         function formatNumber(value) {
             if (value === undefined || value === null || value === "" || value === "-") return "-";
-            let num = parseFloat(value);
+            
+            // 1. แปลงเป็นข้อความและลบลูกน้ำ (,) เดิมออกก่อน
+            let strVal = value.toString().replace(/,/g, '');
+            
+            // 2. แปลงกลับเป็นตัวเลข
+            let num = parseFloat(strVal);
             if (isNaN(num)) return value;
-            return num.toFixed(2);
+            
+            // 3. จัดรูปแบบใหม่ให้มีลูกน้ำและทศนิยม 2 ตำแหน่งเสมอ
+            return num.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
         function formatCurrency(value) {
