@@ -114,7 +114,7 @@
                         <input type="text" name="ชื่อโครงการ" required class="w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white">
                     </div>
 
-                    <!-- แถวที่ 2: ทีมงาน / หน่วยงาน / ราคา -->
+                   <!-- แถวที่ 2: ทีมงาน / หน่วยงาน / ราคา -->
                     <div class="space-y-1">
                         <label class="text-xs text-gray-400">ทีมงาน</label>
                         <input type="text" name="ทีมงาน" class="w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white" placeholder="เช่น ทีมรับเหมา, ทีมรายวัน">
@@ -125,26 +125,27 @@
                     </div>
                     <div class="space-y-1">
                         <label class="text-xs text-gray-400">ราคาโครงการ</label>
-                        <input type="number" step="0.01" name="ราคาโครงการ" class="w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white">
+                        <!-- เปลี่ยนเป็น type="text" และเพิ่ม class="number-format" -->
+                        <input type="text" name="ราคาโครงการ" class="number-format w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white" placeholder="เช่น 999,000.00">
                     </div>
 
                     <!-- แถวที่ 3: สเปกงาน -->
                     <div class="space-y-1">
                         <label class="text-xs text-gray-400">กว้าง (m.)</label>
-                        <input type="number" step="0.01" name="กว้าง(m.)" class="w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white">
+                        <input type="text" name="กว้าง(m.)" class="number-format w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white" placeholder="0.00">
                     </div>
                     <div class="space-y-1">
                         <label class="text-xs text-gray-400">ยาว (m.)</label>
-                        <input type="number" step="0.01" name="ยาว(m.)" class="w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white">
+                        <input type="text" name="ยาว(m.)" class="number-format w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white" placeholder="0.00">
                     </div>
                     <div class="space-y-1 grid grid-cols-2 gap-2">
                         <div>
                             <label class="text-xs text-gray-400">ลึก (m.)</label>
-                            <input type="number" step="0.01" name="ลึก(m.)" class="w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white">
+                            <input type="text" name="ลึก(m.)" class="number-format w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white" placeholder="0.00">
                         </div>
                         <div>
                             <label class="text-xs text-gray-400">ไหล่ทาง (m.)</label>
-                            <input type="number" step="0.01" name="ไหล่ทาง(m.)" class="w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white">
+                            <input type="text" name="ไหล่ทาง(m.)" class="number-format w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white" placeholder="0.00">
                         </div>
                     </div>
 
