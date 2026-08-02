@@ -508,4 +508,24 @@
         fetchData();
     </script>
 </body>
+    // --- ระบบจัดรูปแบบตัวเลขในฟอร์ม (ใส่ลูกน้ำและทศนิยม 2 ตำแหน่งอัตโนมัติ) ---
+        document.querySelectorAll('.number-format').forEach(input => {
+            // เมื่อพิมพ์เสร็จแล้วคลิกเมาส์ออก (Blur) ให้แปลงเป็นรูปแบบ 1,000.00
+            input.addEventListener('blur', function(e) {
+                let value = e.target.value.replace(/,/g, ''); // เอาลูกน้ำออกก่อน
+                let num = parseFloat(value);
+                if (!isNaN(num)) {
+                    // แปลงกลับโดยใส่ลูกน้ำและบังคับทศนิยม 2 ตำแหน่ง
+                    e.target.value = num.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                } else {
+                    e.target.value = ''; // ถ้าพิมพ์ผิดเป็นตัวอักษรให้เคลียร์ค่าทิ้ง
+                }
+            });
+
+            // เมื่อคลิกเมาส์เข้าช่องเพื่อแก้ไข (Focus) ให้เอาลูกน้ำออกเพื่อให้ลบ/พิมพ์ตัวเลขง่ายขึ้น
+            input.addEventListener('focus', function(e) {
+                let value = e.target.value.replace(/,/g, '');
+                e.target.value = value;
+            });
+        });
 </html>
