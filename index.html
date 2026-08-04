@@ -177,9 +177,25 @@
             
             <div class="grid grid-cols-1 md:grid-cols-7 gap-6 text-sm">
                 <div class="md:col-span-3 space-y-4">
-                    <div class="bg-slate-800/50 rounded-lg aspect-video flex items-center justify-center border border-slate-600">
-                        <span class="text-gray-500">📷 รูปไซต์งาน</span>
-                    </div>
+                    <!-- กล่องอัปโหลดรูปภาพ -->
+<div class="relative w-full h-48 bg-slate-800/50 border border-slate-600 rounded-lg flex items-center justify-center overflow-hidden cursor-pointer hover:border-primary transition-colors group mt-4" onclick="document.getElementById('fileUpload').click()">
+    <input type="file" id="fileUpload" accept="image/*" class="hidden" onchange="uploadImage(event)">
+    
+    <!-- รูปภาพที่จะแสดงเมื่อมีข้อมูลหรืออัปโหลดเสร็จ -->
+    <img id="previewImage" src="" class="absolute inset-0 w-full h-full object-cover hidden" alt="รูปไซต์งาน">
+    
+    <!-- ข้อความก่อนอัปโหลด -->
+    <div id="uploadPlaceholder" class="flex flex-col items-center text-gray-500 group-hover:text-gray-300">
+        <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+        <span class="text-sm">คลิกเพื่ออัปโหลดรูปไซต์งาน</span>
+    </div>
+
+    <!-- หน้าต่างโหลดตอนกำลังบันทึก -->
+    <div id="loadingOverlay" class="absolute inset-0 bg-slate-900/80 flex flex-col items-center justify-center hidden">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-2"></div>
+        <span class="text-sm text-primary">กำลังบันทึกรูปภาพ...</span>
+    </div>
+</div>
                     <div class="bg-slate-800/30 p-4 rounded-lg border border-slate-700 space-y-2">
                         <p><span class="text-gray-400 inline-block w-24">ผู้รับผิดชอบ:</span> <span id="modal-team" class="text-white"></span></p>
                         <p><span class="text-gray-400 inline-block w-24">ตรวจรับงาน:</span> <span id="modal-date" class="text-white"></span></p>
