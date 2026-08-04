@@ -542,5 +542,57 @@
                 e.target.value = value;
             });
         });
+        // ฟังก์ชันจัดการการอัปโหลดรูปภาพ
+        function uploadImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // ดึงเลขที่โครงการจากหัว Modal (เช่น "08/69")
+            const modalTitle = document.getElementById('modal-title').innerText;
+            const projectId = modalTitle.split(' ')[0].trim();
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const base64Data = e.target.result;
+                
+                // แสดงรูปภาพให้ดูทันที (Preview)
+                document.getElementById('previewImage').src = base64Data;
+                document.getElementById('previewImage').classList.remove('hidden');
+                document.getElementById('uploadPlaceholder').classList.add('hidden');
+                document.getElementById('loadingOverlay').classList.remove('hidden');
+
+                // ลบส่วนหัวของ Base64 ออกก่อนส่ง
+                const base64String = base64Data.split(',')[1];
+
+                // ส่งไปบันทึกที่ Google Apps Script
+                fetch(scriptUrl, { // ต้องแน่ใจว่าตัวแปร scriptUrl ของคุณชี้ไปที่ Web App
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'uploadImage',
+                        projectId: projectId,
+                        image: base64String,
+                        mimeType: file.type,
+                        fileName: file.name
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    if(data.success) {
+                        alert('บันทึกรูปภาพสำเร็จ!');
+                    } else {
+                        alert('เกิดข้อผิดพลาด: ' + data.message);
+                        // ถ้าพัง ให้ซ่อนรูปกลับไปเหมือนเดิม
+                        document.getElementById('previewImage').classList.add('hidden');
+                        document.getElementById('uploadPlaceholder').classList.remove('hidden');
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('loadingOverlay').classList.add('hidden');
+                    alert('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
+                });
+            };
+            reader.readAsDataURL(file);
+        }
     </script>
 </body>
