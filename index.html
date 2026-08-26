@@ -57,7 +57,7 @@
                 <p class="text-gray-400 text-sm mt-1">ระบบติดตามความคืบหน้าโครงการ</p>
             </div>
             <div class="flex gap-2">
-                <input type="text" id="searchInput" placeholder="ค้นหาโครงการ..." class="bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary w-full md:w-64">
+                <input type="text" id="searchInput" oninput="filterProjects()" placeholder="ค้นหาโครงการ..." class="bg-slate-800/50 border border-slate-600 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary w-full md:w-64">
             </div>
         </header>
 
@@ -85,12 +85,11 @@
             </div>
         </div>
 
-        <!-- Section: กล่องข้อมูลโครงการแต่ละโครงการ (แทนตาราง) -->
+        <!-- Section: รายการโครงการ -->
         <div>
             <div class="flex justify-between items-end mb-4 px-2">
                 <h2 class="text-xl font-medium text-white">📋 รายการโครงการ</h2>
             </div>
-            <!-- Grid สำหรับจัดเรียงการ์ด -->
             <div id="project-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
                 <div class="col-span-full text-center py-8 text-gray-500">กำลังโหลดข้อมูลโครงการ...</div>
             </div>
@@ -103,8 +102,6 @@
             </h2>
             <form id="addProjectForm" class="space-y-4">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    
-                    <!-- แถวที่ 1: ข้อมูลหลัก -->
                     <div class="space-y-1">
                         <label class="text-xs text-gray-400">เลขที่โครงการ</label>
                         <input type="text" name="เลขที่โครงการ" required class="w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white">
@@ -113,8 +110,6 @@
                         <label class="text-xs text-gray-400">ชื่อโครงการ</label>
                         <input type="text" name="ชื่อโครงการ" required class="w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white">
                     </div>
-
-                   <!-- แถวที่ 2: ทีมงาน / หน่วยงาน / ราคา -->
                     <div class="space-y-1">
                         <label class="text-xs text-gray-400">ทีมงาน</label>
                         <input type="text" name="ทีมงาน" class="w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white" placeholder="เช่น ทีมรับเหมา, ทีมรายวัน">
@@ -125,31 +120,26 @@
                     </div>
                     <div class="space-y-1">
                         <label class="text-xs text-gray-400">ราคาโครงการ</label>
-                        <!-- เปลี่ยนเป็น type="text" และเพิ่ม class="number-format" -->
-                        <input type="text" name="ราคาโครงการ" class="number-format w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white" placeholder="เช่น 999,000.00">
+                        <input type="text" name="ราคาโครงการ" class="w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white" placeholder="เช่น 999,000.00">
                     </div>
-
-                    <!-- แถวที่ 3: สเปกงาน -->
                     <div class="space-y-1">
                         <label class="text-xs text-gray-400">กว้าง (m.)</label>
-                        <input type="text" name="กว้าง(m.)" class="number-format w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white" placeholder="0.00">
+                        <input type="text" name="กว้าง(m.)" class="w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white" placeholder="0.00">
                     </div>
                     <div class="space-y-1">
                         <label class="text-xs text-gray-400">ยาว (m.)</label>
-                        <input type="text" name="ยาว(m.)" class="number-format w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white" placeholder="0.00">
+                        <input type="text" name="ยาว(m.)" class="w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white" placeholder="0.00">
                     </div>
                     <div class="space-y-1 grid grid-cols-2 gap-2">
                         <div>
                             <label class="text-xs text-gray-400">ลึก (m.)</label>
-                            <input type="text" name="ลึก(m.)" class="number-format w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white" placeholder="0.00">
+                            <input type="text" name="ลึก(m.)" class="w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white" placeholder="0.00">
                         </div>
                         <div>
                             <label class="text-xs text-gray-400">ไหล่ทาง (m.)</label>
-                            <input type="text" name="ไหล่ทาง(m.)" class="number-format w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white" placeholder="0.00">
+                            <input type="text" name="ไหล่ทาง(m.)" class="w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white" placeholder="0.00">
                         </div>
                     </div>
-
-                    <!-- แถวที่ 4: สัญญา -->
                     <div class="space-y-1">
                         <label class="text-xs text-gray-400">วันที่เริ่มสัญญา</label>
                         <input type="text" name="วันที่เริ่มสัญญา" class="w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white" placeholder="เช่น 01/05/2569">
@@ -168,56 +158,36 @@
             </form>
         </div>
     </div>
+
+    <!-- Modal 1: Popup แสดงรายละเอียดโครงการ -->
+    <div id="detailModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden flex justify-center items-center p-4 z-50 overflow-y-auto">
+        <div class="glass-panel w-full max-w-4xl p-6 relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl font-bold p-2">✕</button>
+            <h2 class="text-xl font-semibold text-white mb-6 pr-8 border-b border-slate-700 pb-3" id="modal-title">รายละเอียดโครงการ</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-7 gap-6">
+                <!-- ฝั่งซ้าย: ผู้รับผิดชอบ & สเปก -->
                 <div class="md:col-span-3 space-y-4">
-                    
-                    <!-- ผู้รับผิดชอบ / ตรวจรับงาน -->
-                    <div class="bg-slate-800/30 p-4 rounded-lg border border-slate-700 space-y-2">
-                        <p><span class="text-gray-400 inline-block w-24">ผู้รับผิดชอบ:</span> <span id="modal-team" class="text-white"></span></p>
-                        <p><span class="text-gray-400 inline-block w-24">ตรวจรับงาน:</span> <span id="modal-date" class="text-white"></span></p>
+                    <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/60 space-y-2">
+                        <p><span class="text-gray-400 inline-block w-24">ผู้รับผิดชอบ:</span> <span id="modal-team" class="text-white font-medium"></span></p>
+                        <p><span class="text-gray-400 inline-block w-24">ตรวจรับงาน:</span> <span id="modal-date" class="text-white font-medium"></span></p>
                     </div>
-                    
-                    <!-- ข้อมูลสเปกและคอนกรีต -->
-                    <div class="bg-slate-800/30 p-4 rounded-lg border border-slate-700">
-                        <h3 class="text-white font-medium mb-3 border-b border-slate-600 pb-2">ข้อมูลสเปกและคอนกรีต</h3>
-                        <div id="modal-specs" class="space-y-2"></div>
-                    </div>
-
-                </div>
-<div class="relative w-full h-48 bg-slate-800/50 border border-slate-600 rounded-lg flex items-center justify-center overflow-hidden cursor-pointer hover:border-primary transition-colors group mt-4" onclick="document.getElementById('fileUpload').click()">
-    <input type="file" id="fileUpload" accept="image/*" class="hidden" onchange="uploadImage(event)">
-    
-    <!-- รูปภาพที่จะแสดงเมื่อมีข้อมูลหรืออัปโหลดเสร็จ -->
-    <img id="previewImage" src="" class="absolute inset-0 w-full h-full object-cover hidden" alt="รูปไซต์งาน">
-    
-    <!-- ข้อความก่อนอัปโหลด -->
-    <div id="uploadPlaceholder" class="flex flex-col items-center text-gray-500 group-hover:text-gray-300">
-        <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-        <span class="text-sm">คลิกเพื่ออัปโหลดรูปไซต์งาน</span>
-    </div>
-
-    <!-- หน้าต่างโหลดตอนกำลังบันทึก -->
-    <div id="loadingOverlay" class="absolute inset-0 bg-slate-900/80 flex flex-col items-center justify-center hidden">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mb-2"></div>
-        <span class="text-sm text-primary">กำลังบันทึกรูปภาพ...</span>
-    </div>
-</div>
-                    <div class="bg-slate-800/30 p-4 rounded-lg border border-slate-700 space-y-2">
-                        <p><span class="text-gray-400 inline-block w-24">ผู้รับผิดชอบ:</span> <span id="modal-team" class="text-white"></span></p>
-                        <p><span class="text-gray-400 inline-block w-24">ตรวจรับงาน:</span> <span id="modal-date" class="text-white"></span></p>
-                    </div>
-                    <div class="bg-slate-800/30 p-4 rounded-lg border border-slate-700">
-                        <h3 class="text-white font-medium mb-3 border-b border-slate-600 pb-2">ข้อมูลสเปกและคอนกรีต</h3>
-                        <div id="modal-specs" class="space-y-2"></div>
+                    <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/60">
+                        <h3 class="text-white font-medium mb-3 border-b border-slate-700 pb-2">ข้อมูลสเปกและคอนกรีต</h3>
+                        <div id="modal-specs" class="space-y-2 text-sm"></div>
                     </div>
                 </div>
 
-                <div class="md:col-span-4">
-                    <div class="bg-slate-800/30 p-4 rounded-lg border border-slate-700 mb-6">
-                        <h3 class="text-white font-medium mb-3 border-b border-slate-600 pb-2">ข้อมูลสัญญาและงบประมาณ</h3>
+                <!-- ฝั่งขวา: การเงิน & สเต็ปงาน -->
+                <div class="md:col-span-4 space-y-6">
+                    <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/60">
+                        <h3 class="text-white font-medium mb-3 border-b border-slate-700 pb-2">ข้อมูลสัญญาและงบประมาณ</h3>
                         <div id="modal-financials" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-sm"></div>
                     </div>
-                    <h3 class="font-medium text-white border-b border-slate-700 pb-2 mb-3">สถานะงานแต่ละสเต็ป <span class="text-xs text-gray-400 font-normal">(คลิกเพื่อดูรายละเอียด)</span></h3>
-                    <div id="modal-tasks" class="grid grid-cols-2 gap-3 mt-4"></div>
+                    <div>
+                        <h3 class="font-medium text-white border-b border-slate-700 pb-2 mb-3">สถานะงานแต่ละสเต็ป <span class="text-xs text-gray-400 font-normal">(คลิกเพื่อดูรายละเอียด)</span></h3>
+                        <div id="modal-tasks" class="grid grid-cols-2 gap-3 mt-4"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -226,7 +196,7 @@
     <!-- Modal 2: Popup ย่อยสำหรับแสดงรายละเอียดงานแต่ละสเต็ป -->
     <div id="stepDetailModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden flex justify-center items-center p-4 z-50">
         <div class="glass-panel w-full max-w-lg p-6 relative">
-            <button onclick="closeStepDetail()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">✕</button>
+            <button onclick="closeStepDetail()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl p-1">✕</button>
             <h3 class="text-lg font-medium text-primary mb-1" id="step-modal-title">รายละเอียดงาน</h3>
             <p class="text-sm text-gray-400 mb-4" id="step-modal-subtitle"></p>
             <div class="overflow-x-auto max-h-64 overflow-y-auto">
@@ -245,7 +215,6 @@
     </div>
 
     <script>
-        // --- 🔴 ใส่ URL ของ Web App ตรงนี้ ---
         const API_URL = 'https://script.google.com/macros/s/AKfycbw08EpdREtuCofDUK0g670OVp8hs_Z5Caxszt88bFA4eq1mZPTsC9Lcu4MtykzNcd5TKg/exec';
         
         let projectData = []; 
@@ -267,15 +236,9 @@
 
         function formatNumber(value) {
             if (value === undefined || value === null || value === "" || value === "-") return "-";
-            
-            // 1. แปลงเป็นข้อความและลบลูกน้ำ (,) เดิมออกก่อน
             let strVal = value.toString().replace(/,/g, '');
-            
-            // 2. แปลงกลับเป็นตัวเลข
             let num = parseFloat(strVal);
             if (isNaN(num)) return value;
-            
-            // 3. จัดรูปแบบใหม่ให้มีลูกน้ำและทศนิยม 2 ตำแหน่งเสมอ
             return num.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         }
 
@@ -303,37 +266,46 @@
                 
                 projectData = result.projects || [];
                 detailsData = result.details || [];
-                renderDashboard();
+                renderDashboard(projectData);
             } catch (error) {
                 console.error('Error fetching data:', error);
                 document.getElementById('project-cards-container').innerHTML = `<div class="col-span-full text-center py-8 text-danger">เกิดข้อผิดพลาดในการดึงข้อมูล โปรดตรวจสอบ URL หรือการ Deploy Apps Script</div>`;
             }
         }
 
-        function renderDashboard() {
+        function renderDashboard(dataList) {
             let total = projectData.length;
             let done = 0, inProgress = 0, waiting = 0, totalPercent = 0;
-            
+
+            projectData.forEach(row => {
+                let percent = parseFloat(row["เปอร์เซ็นต์งาน"]) || 0;
+                totalPercent += percent;
+                if (percent === 100) done++;
+                else if (percent === 0) waiting++;
+                else inProgress++;
+            });
+
+            document.getElementById('kpi-total').innerText = total;
+            document.getElementById('kpi-done').innerText = done;
+            document.getElementById('kpi-progress').innerText = inProgress;
+            document.getElementById('kpi-delay').innerText = waiting;
+            document.getElementById('kpi-percent').innerText = total > 0 ? `${(totalPercent / total).toFixed(1)}%` : '0%';
+
             const container = document.getElementById('project-cards-container');
             container.innerHTML = ''; 
 
-            if (projectData.length === 0) {
+            if (dataList.length === 0) {
                 container.innerHTML = `<div class="col-span-full text-center py-8 text-gray-500">ไม่พบข้อมูลโครงการ</div>`;
                 return;
             }
 
-            projectData.forEach((row, index) => {
+            dataList.forEach((row) => {
                 let percent = parseFloat(row["เปอร์เซ็นต์งาน"]) || 0;
-                totalPercent += percent;
+                let originalIndex = projectData.indexOf(row);
 
-                if (percent === 100) done++;
-                else if (percent === 0) waiting++;
-                else inProgress++;
-
-                // --- สร้าง UI แบบ Card แทน Table ---
                 const card = document.createElement('div');
                 card.className = "bg-slate-800/40 border border-slate-700 rounded-xl p-5 hover:bg-slate-800/80 hover:border-slate-500 transition-all cursor-pointer flex flex-col justify-between";
-                card.onclick = () => openModal(index);
+                card.onclick = () => openModal(originalIndex);
                 
                 card.innerHTML = `
                     <div>
@@ -364,12 +336,16 @@
                 `;
                 container.appendChild(card);
             });
+        }
 
-            document.getElementById('kpi-total').innerText = total;
-            document.getElementById('kpi-done').innerText = done;
-            document.getElementById('kpi-progress').innerText = inProgress;
-            document.getElementById('kpi-delay').innerText = waiting;
-            document.getElementById('kpi-percent').innerText = total > 0 ? `${(totalPercent / total).toFixed(1)}%` : '0%';
+        function filterProjects() {
+            const query = document.getElementById('searchInput').value.toLowerCase().trim();
+            const filtered = projectData.filter(p => 
+                (p["เลขที่โครงการ"] || '').toLowerCase().includes(query) ||
+                (p["ชื่อโครงการ"] || '').toLowerCase().includes(query) ||
+                (p["ทีมงาน"] || '').toLowerCase().includes(query)
+            );
+            renderDashboard(filtered);
         }
 
         // --- ระบบส่งข้อมูลเข้า Google Sheets ---
@@ -381,41 +357,39 @@
             submitBtn.disabled = true;
             submitBtn.innerHTML = 'กำลังบันทึก... ⏳';
 
-            // จัดกลุ่มข้อมูลจาก Form ให้อยู่ในรูปแบบ JSON
             const formData = new FormData(e.target);
             const data = Object.fromEntries(formData.entries());
 
             try {
-                // ส่งข้อมูล POST ไปยัง Google Apps Script (Web App)
                 const response = await fetch(API_URL, {
                     method: 'POST',
                     body: JSON.stringify(data),
-                    headers: {
-                        'Content-Type': 'text/plain;charset=utf-8', // ใช้ text/plain เลี่ยง CORS Preflight Error
-                    }
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
                 });
                 
                 const result = await response.json();
                 
                 if (result.status === 'success') {
                     alert('เพิ่มโครงการใหม่เรียบร้อยแล้ว!');
-                    e.target.reset(); // ล้างฟอร์ม
-                    fetchData(); // ดึงข้อมูลใหม่มาแสดงทันที
+                    e.target.reset();
+                    fetchData();
                 } else {
                     alert('เกิดข้อผิดพลาด: ' + result.message);
                 }
             } catch (error) {
                 console.error('Error submitting form:', error);
-                alert('เกิดข้อผิดพลาดในการเชื่อมต่อ อาจเป็นเพราะติด CORS หรือ URL ผิด\n\nแต่ข้อมูลอาจจะเข้าชีตแล้ว แนะนำให้รีเฟรชหน้าเว็บดูครับ');
+                alert('เกิดข้อผิดพลาดในการเชื่อมต่อ แนะนำให้ลองรีเฟรชหน้าเว็บดูครับ');
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = originalText;
             }
         });
 
-        // ---------------- โค้ดส่วน Modal เดิม ----------------
+        // --- ระบบ Modal แสดงรายละเอียด ---
         function openModal(index) {
             const data = projectData[index];
+            if (!data) return;
+
             const projectId = data["เลขที่โครงการ"] || '';
             const projectName = data["ชื่อโครงการ"] || '';
             
@@ -523,112 +497,11 @@
             document.getElementById('stepDetailModal').classList.remove('hidden');
         }
 
-        function closeStepDetail() { document.getElementById('stepDetailModal').classList.add('hidden'); }
         function closeModal() { document.getElementById('detailModal').classList.add('hidden'); }
+        function closeStepDetail() { document.getElementById('stepDetailModal').classList.add('hidden'); }
 
-        fetchData();
-        // --- ระบบจัดรูปแบบตัวเลขในฟอร์ม (ใส่ลูกน้ำและทศนิยม 2 ตำแหน่งอัตโนมัติ) ---
-        document.querySelectorAll('.number-format').forEach(input => {
-            // เมื่อพิมพ์เสร็จแล้วคลิกเมาส์ออก (Blur) ให้แปลงเป็นรูปแบบ 1,000.00
-            input.addEventListener('blur', function(e) {
-                let value = e.target.value.replace(/,/g, ''); // เอาลูกน้ำออกก่อน
-                let num = parseFloat(value);
-                if (!isNaN(num)) {
-                    // แปลงกลับโดยใส่ลูกน้ำและบังคับทศนิยม 2 ตำแหน่ง
-                    e.target.value = num.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                } else {
-                    e.target.value = ''; // ถ้าพิมพ์ผิดเป็นตัวอักษรให้เคลียร์ค่าทิ้ง
-                }
-            });
-
-            // เมื่อคลิกเมาส์เข้าช่องเพื่อแก้ไข (Focus) ให้เอาลูกน้ำออกเพื่อให้ลบ/พิมพ์ตัวเลขง่ายขึ้น
-            input.addEventListener('focus', function(e) {
-                let value = e.target.value.replace(/,/g, '');
-                e.target.value = value;
-            });
-        });
-        // ฟังก์ชันจัดการการอัปโหลดรูปภาพ (เพิ่มระบบบีบอัดรูป ลดขนาดไฟล์ให้อัปโหลดไวปรู๊ดปร๊าด)
-        function uploadImage(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            // ดึงเลขที่โครงการ
-            const modalTitle = document.getElementById('modal-title').innerText;
-            const projectId = modalTitle.split(' ')[0].trim();
-
-            // แสดงหน้าต่างโหลดทันที
-            document.getElementById('uploadPlaceholder').classList.add('hidden');
-            document.getElementById('loadingOverlay').classList.remove('hidden');
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = new Image();
-                img.onload = function() {
-                    // --- ระบบบีบอัดรูปภาพ (ลดขนาด) ---
-                    const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 800; // กำหนดความกว้างสูงสุด
-                    const MAX_HEIGHT = 800; // กำหนดความสูงสูงสุด
-                    let width = img.width;
-                    let height = img.height;
-
-                    // คำนวณสัดส่วนรูปภาพใหม่
-                    if (width > height) {
-                        if (width > MAX_WIDTH) {
-                            height *= MAX_WIDTH / width;
-                            width = MAX_WIDTH;
-                        }
-                    } else {
-                        if (height > MAX_HEIGHT) {
-                            width *= MAX_HEIGHT / height;
-                            height = MAX_HEIGHT;
-                        }
-                    }
-                    
-                    canvas.width = width;
-                    canvas.height = height;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, width, height);
-
-                    // แปลงรูปที่บีบอัดแล้วเป็น Base64 (คุณภาพ 80% หรือ 0.8)
-                    const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
-                    
-                    // แสดงรูป Preview
-                    document.getElementById('previewImage').src = compressedDataUrl;
-                    document.getElementById('previewImage').classList.remove('hidden');
-
-                    const base64String = compressedDataUrl.split(',')[1];
-
-                    // ส่งรูปที่เล็กลงแล้วไปบันทึก
-                    fetch(scriptUrl, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            action: 'uploadImage',
-                            projectId: projectId,
-                            image: base64String,
-                            mimeType: 'image/jpeg',
-                            fileName: file.name
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(data => {
-                        document.getElementById('loadingOverlay').classList.add('hidden');
-                        if(data.success) {
-                            console.log('บันทึกรูปภาพสำเร็จ');
-                            // ไม่ต้องเด้ง Alert กวนใจ ปล่อยให้รูปโชว์ไปเลย
-                        } else {
-                            alert('เกิดข้อผิดพลาด: ' + data.message);
-                            document.getElementById('previewImage').classList.add('hidden');
-                            document.getElementById('uploadPlaceholder').classList.remove('hidden');
-                        }
-                    })
-                    .catch(error => {
-                        document.getElementById('loadingOverlay').classList.add('hidden');
-                        alert('ไม่สามารถเชื่อมต่อได้ ตรวจสอบว่าคุณได้กด New Deployment ใน Apps script หรือยัง');
-                    });
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
+        // เรียกโหลดข้อมูลเมื่อเปิดหน้าเว็บ
+        window.onload = fetchData;
     </script>
 </body>
+</html>
