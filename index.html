@@ -123,6 +123,14 @@
                         <input type="text" name="ราคาโครงการ" class="w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white" placeholder="เช่น 999,000.00">
                     </div>
                     <div class="space-y-1">
+                        <label class="text-xs text-gray-400">ส่งแล้วรอเบิก</label>
+                        <input type="text" name="ส่งแล้วรอเบิก" class="w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white" placeholder="เช่น 100,000.00 หรือ วันที่">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="text-xs text-gray-400">ส่งแล้วเบิกสำเร็จ</label>
+                        <input type="text" name="ส่งแล้วเบิกสำเร็จ" class="w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white" placeholder="เช่น 200,000.00 หรือ วันที่">
+                    </div>
+                    <div class="space-y-1">
                         <label class="text-xs text-gray-400">กว้าง (m.)</label>
                         <input type="text" name="กว้าง(m.)" class="w-full bg-slate-800/80 border border-slate-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-primary text-white" placeholder="0.00">
                     </div>
@@ -166,15 +174,24 @@
             <h2 class="text-xl font-semibold text-white mb-6 pr-8 border-b border-slate-700 pb-3" id="modal-title">รายละเอียดโครงการ</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-7 gap-6">
-                <!-- ฝั่งซ้าย: ผู้รับผิดชอบ & สเปก -->
+                <!-- ฝั่งซ้าย: ผู้รับผิดชอบ & สเปก & สถานะการเบิกจ่าย -->
                 <div class="md:col-span-3 space-y-4">
+                    <!-- กล่องผู้รับผิดชอบ -->
                     <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/60 space-y-2">
                         <p><span class="text-gray-400 inline-block w-24">ผู้รับผิดชอบ:</span> <span id="modal-team" class="text-white font-medium"></span></p>
                         <p><span class="text-gray-400 inline-block w-24">ตรวจรับงาน:</span> <span id="modal-date" class="text-white font-medium"></span></p>
                     </div>
+
+                    <!-- กล่องสเปกและคอนกรีต -->
                     <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/60">
                         <h3 class="text-white font-medium mb-3 border-b border-slate-700 pb-2">ข้อมูลสเปกและคอนกรีต</h3>
                         <div id="modal-specs" class="space-y-2 text-sm"></div>
+                    </div>
+
+                    <!-- กล่องเพิ่มใหม่: สถานะการเบิกจ่าย -->
+                    <div class="bg-slate-800/40 p-4 rounded-xl border border-slate-700/60">
+                        <h3 class="text-white font-medium mb-3 border-b border-slate-700 pb-2">สถานะการเบิกจ่าย</h3>
+                        <div id="modal-disbursement" class="space-y-2 text-sm"></div>
                     </div>
                 </div>
 
@@ -397,6 +414,7 @@
             document.getElementById('modal-team').innerText = data["ทีมงาน"] || '-';
             document.getElementById('modal-date').innerText = data["ตรวจรับงาน"] || 'ยังไม่กำหนด';
             
+            // ดึงข้อมูลสเปกและคอนกรีต
             const boq = findValueByKeyPart(data, "boq");
             const actual = findValueByKeyPart(data, "ใช้จริง");
             const errQ = findValueByKeyPart(data, "error(คิว)") !== "-" ? findValueByKeyPart(data, "error(คิว)") : findValueByKeyPart(data, "error"); 
@@ -414,6 +432,22 @@
                 <div class="flex justify-between items-center text-gray-400"><span>Error (%):</span> <span class="text-white">${formatNumber(errP)}</span></div>
             `;
 
+            // ดึงข้อมูลการเบิกจ่าย (คอลัมน์ N & O)
+            const pendingDisbursement = data["ส่งแล้วรอเบิก"] || findValueByKeyPart(data, "รอเบิก");
+            const successDisbursement = data["ส่งแล้วเบิกสำเร็จ"] || findValueByKeyPart(data, "เบิกสำเร็จ");
+
+            document.getElementById('modal-disbursement').innerHTML = `
+                <div class="flex justify-between items-center text-gray-400">
+                    <span>ส่งแล้วรอเบิก:</span> 
+                    <span class="text-warning font-medium">${formatCurrency(pendingDisbursement)}</span>
+                </div>
+                <div class="flex justify-between items-center text-gray-400">
+                    <span>ส่งแล้วเบิกสำเร็จ:</span> 
+                    <span class="text-success font-medium">${formatCurrency(successDisbursement)}</span>
+                </div>
+            `;
+
+            // ดึงข้อมูลสัญญาและงบประมาณ
             const vAgency = data["หน่วยงาน"] || "-";
             const vStart = data["วันที่เริ่มสัญญา"] || "-";
             const vEnd = data["วันสิ้นสุดสัญญา"] || "-";
@@ -436,7 +470,8 @@
                 <div class="flex justify-between items-center text-gray-400 md:col-span-2"><span>ผลต่างค่าแรง:</span> <span class="${diffColor} font-medium text-base">${formatCurrency(vDiff)}</span></div>
             `;
 
-            const excludeWords = ["เลขที่", "ชื่อ", "ทีมงาน", "ตรวจรับงาน", "เปอร์เซ็นต์", "ราคา", "สัญญา", "หน่วยงาน", "สถานะ", "หมายเหตุ", "ผู้รับผิดชอบ", "กว้าง", "ยาว", "ลึก", "ไหล่ทาง", "คิว", "error", "งบ", "ผลต่าง", "ค่าแรง"];
+            // รายการยกเว้นเพื่อไม่ให้นำมาแสดงเป็นสเต็ปงาน
+            const excludeWords = ["เลขที่", "ชื่อ", "ทีมงาน", "ตรวจรับงาน", "เปอร์เซ็นต์", "ราคา", "สัญญา", "หน่วยงาน", "สถานะ", "หมายเหตุ", "ผู้รับผิดชอบ", "กว้าง", "ยาว", "ลึก", "ไหล่ทาง", "คิว", "error", "งบ", "ผลต่าง", "ค่าแรง", "เบิก", "รอเบิก"];
             
             let tasksHtml = '';
             for (const [key, value] of Object.entries(data)) {
